@@ -623,7 +623,8 @@ class SchedulerJob(BaseJob):
                 dttm = dag.following_schedule(dttm)
                 while dttm < datetime.utcnow():
                     following_schedule = dag.following_schedule(dttm)
-                    if following_schedule + task.sla < datetime.utcnow():
+                    if following_schedule + task.sla < datetime.utcnow() and \
+                       ti.state != State.SKIPPED:
                         session.merge(models.SlaMiss(
                             task_id=ti.task_id,
                             dag_id=ti.dag_id,
