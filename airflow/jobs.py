@@ -603,7 +603,9 @@ class SchedulerJob(BaseJob):
                 func.max(TI.execution_date).label('max_ti'))
             .with_hint(TI, 'USE INDEX (PRIMARY)', dialect_name='mysql')
             .filter(TI.dag_id == dag.dag_id)
-            .filter(TI.state == State.SUCCESS)
+            .filter(or_(
+                TI.state == State.SUCCESS,
+                TI.state == State.SKIPPED))
             .filter(TI.task_id.in_(dag.task_ids))
             .group_by(TI.task_id).subquery('sq')
         )
@@ -623,8 +625,7 @@ class SchedulerJob(BaseJob):
                 dttm = dag.following_schedule(dttm)
                 while dttm < datetime.utcnow():
                     following_schedule = dag.following_schedule(dttm)
-                    if following_schedule + task.sla < datetime.utcnow() and \
-                       ti.state != State.SKIPPED:
+                    if following_schedule + task.sla < datetime.utcnow():
                         session.merge(models.SlaMiss(
                             task_id=ti.task_id,
                             dag_id=ti.dag_id,
