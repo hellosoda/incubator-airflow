@@ -23,9 +23,13 @@ from airflow.utils.log.logging_mixin import LoggingMixin
 
 class MongoHook(BaseHook, LoggingMixin):
     """
-    Hook for interacting with a MongoDB node or cluster using Pymongo. More
-    information can be found at:
+    Hook for interacting with a MongoDB node or cluster using Pymongo.
+    The associated connection is rewritten as the following MongoDB URI,
+    where empty sections are omitted:
 
+    mongodb://{login}:{password}@{host}:{port}/{schema}?{extras}
+
+    Pymongo API documentation can be found at:
     https://api.mongodb.com/python/current/api/index.html
     """
 
