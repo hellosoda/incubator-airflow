@@ -150,6 +150,10 @@ def initdb():
             port=9083))
     merge_conn(
         models.Connection(
+            conn_id='mongo_default', conn_type='mongo',
+            host='localhost', port=27017))
+    merge_conn(
+        models.Connection(
             conn_id='mysql_default', conn_type='mysql',
             login='root',
             host='localhost'))

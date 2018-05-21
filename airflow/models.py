@@ -542,6 +542,7 @@ class Connection(Base, LoggingMixin):
         ('jdbc', 'Jdbc Connection',),
         ('mysql', 'MySQL',),
         ('postgres', 'Postgres',),
+        ('mongo', 'MongoDB',),
         ('oracle', 'Oracle',),
         ('vertica', 'Vertica',),
         ('presto', 'Presto',),

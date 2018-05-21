@@ -244,6 +244,7 @@ Community contributed hooks
         CloudantHook
 
 .. autoclass:: airflow.contrib.hooks.gcs_hook.GoogleCloudStorageHook
+.. autoclass:: airflow.contrib.hooks.mongo_hook.MongoHook
 
 Executors
 ---------
