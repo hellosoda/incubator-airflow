@@ -27,7 +27,10 @@ class MongoHook(BaseHook, LoggingMixin):
     The associated connection is rewritten as the following MongoDB URI,
     where empty sections are omitted:
 
-    mongodb://{login}:{password}@{host}:{port}/{schema}?{extras}
+    mongodb://{login}:{password}@{host}:{port}/{schema}?{extra}
+
+    The hook will not re-write the {extra} section, i.e. it must be
+    properly query-encoded.
 
     Pymongo API documentation can be found at:
     https://api.mongodb.com/python/current/api/index.html
@@ -64,8 +67,8 @@ class MongoHook(BaseHook, LoggingMixin):
         if conn.schema:
             uri += '/' + conn.schema
 
-        if conn.extras:
-            uri += '?' + conn.extras
+        if conn.extra:
+            uri += '?' + conn.extra
 
         self.mongo_uri = uri
 
