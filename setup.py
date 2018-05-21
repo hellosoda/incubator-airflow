@@ -144,6 +144,7 @@ hive = [
     'unicodecsv>=0.14.1'
 ]
 jdbc = ['jaydebeapi>=1.1.1']
+mongo = ['pymongo>=3.6.1']
 mssql = ['pymssql>=2.1.1', 'unicodecsv>=0.14.1']
 mysql = ['mysqlclient>=1.3.6']
 rabbitmq = ['librabbitmq>=1.6.1']
@@ -174,7 +175,7 @@ qds = ['qds-sdk>=1.9.6']
 cloudant = ['cloudant>=0.5.9,<2.0'] # major update coming soon, clamp to 0.x
 redis = ['redis>=2.10.5']
 
-all_dbs = postgres + mysql + hive + mssql + hdfs + vertica + cloudant
+all_dbs = postgres + mysql + hive + mongo + mssql + hdfs + vertica + cloudant
 devel = [
     'click',
     'freezegun',
@@ -263,6 +264,7 @@ def do_setup():
             'jdbc': jdbc,
             'kerberos': kerberos,
             'ldap': ldap,
+            'mongo': mongo,
             'mssql': mssql,
             'mysql': mysql,
             'oracle': oracle,
