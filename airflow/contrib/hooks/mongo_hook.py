@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-MongoHook
-"""
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
@@ -45,6 +42,17 @@ class MongoHook(BaseHook, LoggingMixin):
 
         conn = self.get_connection(self.mongo_conn_id)
 
+        self.mongo_uri = self.build_uri(conn)
+        self.shadow_mongo_uri = self.build_uri(conn, shadow=True)
+
+    @staticmethod
+    def build_uri(self, conn, shadow=False):
+        """
+        Given an Airflow connection, construct the MongoDB connection URI.
+
+        https://docs.mongodb.com/manual/reference/connection-string/
+        """
+
         host = conn.host
         port = int(conn.port)
         username = conn.login
@@ -55,11 +63,16 @@ class MongoHook(BaseHook, LoggingMixin):
 
         if conn.login:
             uri += conn.login
+
             if conn.password:
-                uri += ':' + conn.password
+                if shadow:
+                    uri += ':***'
+                else:
+                    uri += ':' + conn.password
+
             uri += '@'
 
-        uri += conn.host
+        uri += conn.host or 'localhost'
 
         if conn.port:
             uri += ':' + str(int(conn.port))
@@ -70,18 +83,9 @@ class MongoHook(BaseHook, LoggingMixin):
         if conn.extra:
             uri += '?' + conn.extra
 
-        self.mongo_uri = uri
+        return uri
 
-        if conn.password:
-            self.shadow_mongo_uri = uri.replace(conn.password, '***')
-        else:
-            self.shadow_mongo_uri = uri
-
-        self.log.debug(
-            'Mongo connection {}: {}'.format(
-                mongo_conn_id, self.shadow_mongo_uri))
-
-    def get_conn(self):
+    def get_conn(self, check_connection=True):
         """
         Returns an initialised pymongo MongoClient.
         """
@@ -91,16 +95,18 @@ class MongoHook(BaseHook, LoggingMixin):
         client = MongoClient(self.mongo_uri)
 
         self.log.debug(
-            'Opening new Mongo connection with {}'.format(
+            'Opening Mongo connection for: {}'.format(
                 self.shadow_mongo_uri))
 
-        try:
-            client.admin.command('ismaster')
-        except ConnectionFailure:
-            self.log.error(
-                'Mongo connection {} failed: is the database reachable?'.format(
-                    self.shadow_mongo_uri))
-            raise
+        if check_connection:
+            try:
+                client.admin.command('ismaster')
+            except ConnectionFailure:
+                self.log.error(
+                    'Mongo connection {} failed: is the '
+                    'database reachable?'.format(
+                        self.shadow_mongo_uri))
+                raise
 
         self.mongo_client = client
         return client
